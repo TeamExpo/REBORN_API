@@ -14,7 +14,7 @@ end
 _G.REBORNSYS = REBORN_SYSTEM
 
 local InformationGUI = REBORN_SYSTEM.Storage["Information"]
-REBORN_SYSTEM.Settings.Title = InformationGUI.Mainframe.TopBar.Title
+REBORN_SYSTEM.Settings.Title = InformationGUI.Mainframe.TopBar.Title -- be like REBORN_SYSTEM.Settings.Title.Text = "skidsploit v999"
 REBORN_SYSTEM.Settings.Credits = InformationGUI.Mainframe.Holder.Credits.TextLabel
 InformationGUI.Parent = game:GetService("CoreGui")
 local main = InformationGUI.Mainframe
@@ -22,20 +22,20 @@ local holder = main.Holder
 main.Commands.MouseButton1Click:Connect(function()
 	for i,v in pairs(holder:GetChildren()) do
 		v.Visible = false
-		holder.Commands.Visible = true
 	end
+	holder.Commands.Visible = true
 end)
 main.Keybinds.MouseButton1Click:Connect(function()
 	for i,v in pairs(holder:GetChildren()) do
 		v.Visible = false
-		holder.Keybinds.Visible = true
 	end
+	holder.Keybinds.Visible = true
 end)
 main.Credits.MouseButton1Click:Connect(function()
 	for i,v in pairs(holder:GetChildren()) do
 		v.Visible = false
-		holder.Credits.Visible = true
 	end
+	holder.Credits.Visible = true
 end)
 main.TopBar.TextButton.MouseButton1Click:Connect(function()
 	for i,v in pairs(main:GetChildren()) do
@@ -66,7 +66,7 @@ function REBORN_SYSTEM:Notify(text,duration)
 	if not duration or type(duration) ~= "number" then duration = 2 end
 	game.StarterGui:SetCore("SendNotification", {
     Title = "Reborn API";
-    Text = text;
+    Text = tostring(text);
     Icon = "rbxassetid://4452245157";
     Duration = duration;
     })
@@ -127,7 +127,6 @@ function REBORN_SYSTEM:UpdateGui()
 				text = text.." - N/A"
 			end
 			newcmd.Text = text
-			print("yuh")
 		end
 	end
 end
@@ -425,15 +424,15 @@ local tweenservice = game:GetService("TweenService")
 function REBORN_SYSTEM:Teleport(CFRAME,seconds)
 	if flying then flying = false end
 	if typeof(CFRAME) == "Instance" then
-		local val = CFRAME.CFrame or CFRAME.Position
-		if val then
-			CFRAME = val
-		end
 		if CFRAME:IsA("Player") then
 			local root = CFRAME.Character:FindFirstChild("HumanoidRootPart") or CFRAME.Character:FindFirstChild("Torso")
 			if root then
 				CFRAME = root.CFrame
 			end
+		end
+		local val = CFRAME.CFrame or CFRAME.Position
+		if val then
+			CFRAME = val
 		end
 	end
 	if typeof(CFRAME) == "Vector3" then
