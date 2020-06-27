@@ -1,0 +1,698 @@
+--[[
+made by loyaity22
+]]
+
+local REBORN_SYSTEM = {Settings={},Commands={},Keybinds={}}
+REBORN_SYSTEM.Settings.PREFIX = "/"
+REBORN_SYSTEM.Settings.InstaTP = true
+REBORN_SYSTEM.Settings.DefaultBypass = false
+REBORN_SYSTEM.Storage = game:GetObjects("rbxassetid://5240039982")[1]
+
+if _G.REBORNSYS then
+	return _G.REBORNSYS
+end
+_G.REBORNSYS = REBORN_SYSTEM
+
+local InformationGUI = REBORN_SYSTEM.Storage["Information"]
+REBORN_SYSTEM.Settings.Title = InformationGUI.Mainframe.TopBar.Title -- be like REBORN_SYSTEM.Settings.Title.Text = "skidsploit v999"
+REBORN_SYSTEM.Settings.Credits = InformationGUI.Mainframe.Holder.Credits.TextLabel
+InformationGUI.Parent = game:GetService("CoreGui")
+local main = InformationGUI.Mainframe
+local holder = main.Holder
+main.Commands.MouseButton1Click:Connect(function()
+	for i,v in pairs(holder:GetChildren()) do
+		v.Visible = false
+	end
+	holder.Commands.Visible = true
+end)
+main.Keybinds.MouseButton1Click:Connect(function()
+	for i,v in pairs(holder:GetChildren()) do
+		v.Visible = false
+	end
+	holder.Keybinds.Visible = true
+end)
+main.Credits.MouseButton1Click:Connect(function()
+	for i,v in pairs(holder:GetChildren()) do
+		v.Visible = false
+	end
+	holder.Credits.Visible = true
+end)
+main.TopBar.TextButton.MouseButton1Click:Connect(function()
+	for i,v in pairs(main:GetChildren()) do
+		if v.Name ~= "TopBar" then
+			v.Visible = not v.Visible
+			if v.Visible then
+				main.BackgroundTransparency = 0
+			else
+				main.BackgroundTransparency = 1
+			end
+		end
+	end
+end)
+main.Draggable = true
+local CMDBarGui = REBORN_SYSTEM.Storage["CommandBar"]
+CMDBarGui.Parent = game:GetService("CoreGui")
+
+local LPlayer = game.Players.LocalPlayer
+
+function REBORN_SYSTEM:ParseString(Message)
+	local Arguments = {}
+	for Argument in string.gmatch(Message,"[^%s]+") do
+		table.insert(Arguments,Argument)
+	end
+	return Arguments
+end
+function REBORN_SYSTEM:Notify(text,duration)
+	if not duration or type(duration) ~= "number" then duration = 2 end
+	game.StarterGui:SetCore("SendNotification", {
+    Title = "Reborn API";
+    Text = tostring(text);
+    Icon = "rbxassetid://4452245157";
+    Duration = duration;
+    })
+end
+function REBORN_SYSTEM:UpdateGui()
+	if InformationGUI then
+		if true then -- to lazy to add a seperator for all the variables i probably dont even need it there in the first place
+			for i,v in pairs(InformationGUI.Mainframe.Holder.Commands:GetChildren()) do
+				if v.Name ~= "Original" then
+					v:Remove()
+				end
+			end
+			local original = InformationGUI.Mainframe.Holder.Commands.Original
+			local scrolling = original.Parent
+			local offset = 0
+			local scrollingoffset = original.Size.Y.Offset
+			for i,v in pairs(REBORN_SYSTEM.Commands) do
+				local newcmd = original:Clone()
+				newcmd.Name = "Command"
+				newcmd.Position = UDim2.fromOffset(10,offset)
+				newcmd.Parent = scrolling
+				scrolling.CanvasSize = UDim2.fromOffset(0,scrollingoffset)
+				offset = offset + newcmd.Size.Y.Offset
+				scrollingoffset = scrollingoffset + newcmd.Size.Y.Offset
+				local text = ""
+				if type(v.Name) == "table" then
+					text = v.Name[1]
+				else
+					text = v.Name
+				end
+				if v.Description then
+					text = text.." - "..v.Description
+				end
+				newcmd.Text = text
+			end
+		end
+		for i,v in pairs(InformationGUI.Mainframe.Holder.Keybinds:GetChildren()) do
+			if v.Name ~= "Original" then
+				v:Remove()
+			end
+		end
+		local original = InformationGUI.Mainframe.Holder.Keybinds.Original
+		local scrolling = original.Parent
+		local offset = 0
+		local scrollingoffset = original.Size.Y.Offset
+		for i,v in pairs(REBORN_SYSTEM.Keybinds) do
+			local newcmd = original:Clone()
+			newcmd.Name = "Command"
+			newcmd.Position = UDim2.fromOffset(10,offset)
+			newcmd.Parent = scrolling
+			scrolling.CanvasSize = UDim2.fromOffset(0,scrollingoffset)
+			offset = offset + newcmd.Size.Y.Offset
+			scrollingoffset = scrollingoffset + newcmd.Size.Y.Offset
+			local text = v.Key.Name
+			if v.Name then
+				text = text.." - "..v.Name
+			else
+				text = text.." - N/A"
+			end
+			newcmd.Text = text
+		end
+	end
+end
+function REBORN_SYSTEM:PSearch(str)
+	if str and type(str) == "string" then
+		local plr
+		for i, v in pairs(game.Players:GetPlayers()) do 
+			if string.lower(string.sub(v.Name, 1, string.len(str))) == string.lower(str) then
+				plr = v
+			elseif str == "me" then
+				plr = game.Players.LocalPlayer
+			end
+		end
+		if str == "" then
+			plr = nil
+		end
+		if plr then
+			return plr
+		else
+			REBORN_SYSTEM:Notify("Player could not be found!")
+		end
+	end
+end
+local selectionbox = Instance.new("SelectionBox")
+selectionbox.LineThickness = 0.1
+selectionbox.Color3 = Color3.fromRGB(255,0,0)
+function REBORN_SYSTEM:HighlightPlayer(player)
+	if not player then return end
+	if player.Character then
+		local box = selectionbox:Clone()
+		box.Adornee = player.Character
+		return box	
+	end
+end
+function REBORN_SYSTEM:ESP(object,text)
+	local GUI = REBORN_SYSTEM.Storage:Clone()
+	if text and type(text) == "string" then
+		GUI.TextLabel.Text = text
+	end
+	if object:IsA("Player") then
+		if object.Character and object.Character:FindFirstChild("Head") then
+			GUI.Parent = nil
+			GUI.Adornee = object.Character.Head
+		end
+	else
+		GUI.Parent = nil
+		GUI.Adornee = object
+	end
+	return GUI
+end
+function REBORN_SYSTEM:PlayerlistColorPlayer(player,color3)
+	if not player or not color3 then return end
+	if typeof(color3) == "Color3" then
+		if player then
+			local playerlabels = game:GetService("CoreGui").RobloxGui.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScollingFrame.OffsetUndoFrame:GetChildren()
+			for i,v in pairs(playerlabels) do
+				local label = v.ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName
+				if label.Text == player.Name then
+					label.TextColor3 = color3
+					return label
+				end
+			end
+		end
+	end
+end
+local ms = LPlayer:GetMouse()
+function REBORN_SYSTEM:Mouse2Player(MaxDistance)
+	if not MaxDistance then MaxDistance = 50 end
+	local plr
+    for i,v in pairs(game.Players:GetPlayers()) do
+		if v.Character then
+			local root = v.Character:FindFirstChild("HumanoidRootPart") or v.Character:FindFirstChild("Torso")
+			if root then
+				if (root.Position - Vector3.new(ms.Hit.X,ms.Hit.Y,ms.Hit.Z)).Magnitude < MaxDistance then
+					MaxDistance = (root.Position - Vector3.new(ms.Hit.X,ms.Hit.Y,ms.Hit.Z)).Magnitude
+					plr = v
+				end
+			end
+		end
+    end
+	return plr
+end
+local flying = false
+local fspeed = 5
+function REBORN_SYSTEM:ToggleFly() -- IY Fly edited by Aidez
+	flying = not flying
+	if flying then
+		if LPlayer.Character ~= nil then
+			if LPlayer.Character:FindFirstChild("HumanoidRootPart") and LPlayer.Character:FindFirstChild("Humanoid") then
+				local Float = Instance.new('Part', LPlayer.Character)
+				Float.Name = "Float"
+				Float.Transparency = 1
+				Float.Size = Vector3.new(6, 1, 6)
+				Float.Anchored = true
+				LPlayer.Character.HumanoidRootPart.Anchored = true
+				local T = LPlayer.Character.HumanoidRootPart
+				local CONTROL = {
+					F = 0,
+					B = 0,
+					L = 0,
+					R = 0
+				}
+				local lCONTROL = {
+					F = 0,
+					B = 0,
+					L = 0,
+					R = 0
+				}
+				local SPEED = 0
+				local function FLY()
+					FLYING = true
+					local BG = Instance.new('BodyGyro', T)
+					local BV = Instance.new('BodyVelocity', T)
+					BG.P = 9e4
+					BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+					BG.cframe = T.CFrame
+					BV.velocity = Vector3.new(0, 0.1, 0)
+					BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+					spawn(function()
+						repeat
+							wait()
+							if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 then
+								SPEED = 50
+							elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0) and SPEED ~= 0 then
+								SPEED = 0
+							end
+							if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 then
+								BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+								lCONTROL = {
+									F = CONTROL.F,
+									B = CONTROL.B,
+									L = CONTROL.L,
+									R = CONTROL.R
+								}
+							elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and SPEED ~= 0 then
+								BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+							else
+								BV.velocity = Vector3.new(0, 0.1, 0)
+							end
+							BG.cframe = workspace.CurrentCamera.CoordinateFrame
+						until not FLYING
+						CONTROL = {
+							F = 0,
+							B = 0,
+							L = 0,
+							R = 0
+						}
+						lCONTROL = {
+							F = 0,
+							B = 0,
+							L = 0,
+							R = 0
+						}
+						SPEED = 0
+						BG:destroy()
+						BV:destroy()
+					end)
+				end
+				ms.KeyDown:Connect(function(KEY)
+					if KEY:lower() == 'w' then
+						CONTROL.F = fspeed
+					elseif KEY:lower() == 's' then
+						CONTROL.B = -fspeed
+					elseif KEY:lower() == 'a' then
+						CONTROL.L = -fspeed 
+					elseif KEY:lower() == 'd' then 
+						CONTROL.R = fspeed
+					end
+				end)
+				ms.KeyUp:Connect(function(KEY)
+					if KEY:lower() == 'w' then
+						CONTROL.F = 0
+					elseif KEY:lower() == 's' then
+						CONTROL.B = 0
+					elseif KEY:lower() == 'a' then
+						CONTROL.L = 0
+					elseif KEY:lower() == 'd' then
+						CONTROL.R = 0
+					end
+				end)
+				FLY()
+				LPlayer.Character.HumanoidRootPart.Anchored = false
+			elseif LPlayer.Character:FindFirstChild("Torso") and LPlayer.Character:FindFirstChild("Humanoid") then
+				local Float = Instance.new('Part', LPlayer.Character)
+				Float.Name = "Float"
+				Float.Transparency = 1
+				Float.Size = Vector3.new(6, 1, 6)
+				Float.Anchored = true
+				LPlayer.Character.Torso.Anchored = true
+				local T = LPlayer.Character.Torso
+				local CONTROL = {
+					F = 0,
+					B = 0,
+					L = 0,
+					R = 0
+				}
+				local lCONTROL = {
+					F = 0,
+					B = 0,
+					L = 0,
+					R = 0
+				}
+				local SPEED = 0
+				local function FLY()
+					FLYING = true
+					local BG = Instance.new('BodyGyro', T)
+					local BV = Instance.new('BodyVelocity', T)
+					BG.P = 9e4
+					BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+					BG.cframe = T.CFrame
+					BV.velocity = Vector3.new(0, 0.1, 0)
+					BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+					spawn(function()
+						repeat
+							wait()
+							if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 then
+								SPEED = 50
+							elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0) and SPEED ~= 0 then
+								SPEED = 0
+							end
+							if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 then
+								BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+								lCONTROL = {
+									F = CONTROL.F,
+									B = CONTROL.B,
+									L = CONTROL.L,
+									R = CONTROL.R
+								}
+							elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and SPEED ~= 0 then
+								BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+							else
+								BV.velocity = Vector3.new(0, 0.1, 0)
+							end
+							BG.cframe = workspace.CurrentCamera.CoordinateFrame
+						until not FLYING
+						CONTROL = {
+							F = 0,
+							B = 0,
+							L = 0,
+							R = 0
+						}
+						lCONTROL = {
+							F = 0,
+							B = 0,
+							L = 0,
+							R = 0
+						}
+						SPEED = 0
+						BG:destroy()
+						BV:destroy()
+					end)
+				end
+				ms.KeyDown:Connect(function(KEY)
+					if KEY:lower() == 'w' then
+						CONTROL.F = fspeed
+					elseif KEY:lower() == 's' then
+						CONTROL.B = -fspeed
+					elseif KEY:lower() == 'a' then
+						CONTROL.L = -fspeed 
+					elseif KEY:lower() == 'd' then 
+						CONTROL.R = fspeed
+					end
+				end)
+				ms.KeyUp:Connect(function(KEY)
+					if KEY:lower() == 'w' then
+						CONTROL.F = 0
+					elseif KEY:lower() == 's' then
+						CONTROL.B = 0
+					elseif KEY:lower() == 'a' then
+						CONTROL.L = 0
+					elseif KEY:lower() == 'd' then
+						CONTROL.R = 0
+					end
+				end)
+				FLY()
+				LPlayer.Character.Torso.Anchored = false
+			end
+		end
+	else
+		if LPlayer.Character then
+			if LPlayer.Character:FindFirstChild("Float") then
+				LPlayer.Character:FindFirstChild("Float"):Destroy()
+			end
+		end
+		local AnimationTracks = LPlayer.Character.Humanoid:GetPlayingAnimationTracks()
+		for i, track in pairs (AnimationTracks) do
+			if track.Name ~= "WalkAnim" then
+				track:Stop()
+			end
+		end
+		FLYING = false
+	end
+end
+local tweenservice = game:GetService("TweenService")
+function REBORN_SYSTEM:Teleport(CFRAME,seconds)
+	if flying then flying = false end
+	if typeof(CFRAME) == "Instance" then
+		if CFRAME:IsA("Player") then
+			local root = CFRAME.Character:FindFirstChild("HumanoidRootPart") or CFRAME.Character:FindFirstChild("Torso")
+			if root then
+				CFRAME = root.CFrame
+			end
+		end
+		if CFRAME:IsA("BasePart") and typeof(CFRAME) == "Instance" then
+			local val = CFRAME.CFrame or CFRAME.Position
+			if val then
+				CFRAME = val
+			end
+		end
+	end
+	if typeof(CFRAME) == "Vector3" then
+		CFRAME = CFrame.new(CFRAME)
+	end
+	local root = LPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if REBORN_SYSTEM.Settings.InstaTP then
+		if root then
+			root.CFrame = CFRAME
+		end
+	else
+		if not seconds then seconds = 5 end
+		local tweeninfo = TweenInfo.new(seconds,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0,false,0)
+		local tween = tweenservice:Create(root,tweeninfo,{CFrame = CFRAME})
+		tween:Play()
+		local x = tick()
+		repeat
+			wait()
+			if game.Players.LocalPlayer.Character ~= nil then
+	            if game.Players.LocalPlayer.Character:FindFirstChild("Head") and game.Players.LocalPlayer.Character:FindFirstChild("Torso") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+	                game.Players.LocalPlayer.Character.Head.CanCollide = false
+	                game.Players.LocalPlayer.Character.Torso.CanCollide = false
+	                game.Players.LocalPlayer.Character.Humanoid.Sit = false
+	            end
+	        end
+		until tick() <= x+seconds
+	end
+end
+function REBORN_SYSTEM:AddCommand(commandname,cmddesc,sc)
+	local cmdinformation = {}
+	cmdinformation.Name = commandname
+	if sc == nil then
+		cmdinformation.Function = cmddesc
+		else
+		cmdinformation.Function = sc
+		cmdinformation.Description = cmddesc
+	end
+	table.insert(REBORN_SYSTEM.Commands,cmdinformation)
+	REBORN_SYSTEM:UpdateGui()
+end
+function REBORN_SYSTEM:AddKeybind(enum,name,func)
+	local keybindinfo = {
+		Key = enum,
+		Name = name,
+		Function = func
+	}
+	table.insert(REBORN_SYSTEM.Keybinds,keybindinfo)
+	REBORN_SYSTEM:UpdateGui()
+end
+function REBORN_SYSTEM:ExecuteCommand(args)
+	args = REBORN_SYSTEM:ParseString(args)
+	if not args or not args[1] then return end
+	if args[1]:sub(1,1) ~= REBORN_SYSTEM.Settings.PREFIX then return else args[1] = args[1]:sub(2) end
+	local isacmd = false
+	for i,v in pairs(REBORN_SYSTEM.Commands) do
+		if type(v.Name) == "table" then
+			for i,x in pairs(v.Name) do
+				if not isacmd and x:lower() == args[1]:lower() then
+					table.remove(args,1)
+					local x,y = pcall(function()
+						isacmd = true
+						v.Function(args)
+					end)
+					if not x then
+						REBORN_SYSTEM:Notify("ERROR; DM the owner, the cmd you used!")
+						if setclipboard then
+							setclipboard(y)
+						end
+					end
+				end
+			end
+		elseif v.Name and args[1] then
+			if v.Name:lower() == args[1]:lower() then
+				table.remove(args,1)
+				local x,y = pcall(function()
+					isacmd = true
+					v.Function(args)
+				end)
+				if not x then
+					REBORN_SYSTEM:Notify("ERROR; DM the owner, the cmd you used!")
+					if setclipboard then
+						setclipboard(y)
+					end
+				end
+			end
+		end
+	end
+	if not isacmd then
+		REBORN_SYSTEM:Notify("Failed to find "..tostring(args[1]).."!")
+	end
+end
+LPlayer.Chatted:Connect(function(msg)
+	if msg:sub(1,1) == REBORN_SYSTEM.Settings.PREFIX then
+		REBORN_SYSTEM:ExecuteCommand(msg)
+	end
+end)
+local visible = false
+local UIS = game:GetService("UserInputService")
+local mouse = LPlayer:GetMouse()
+if UIS then
+	UIS.InputBegan:Connect(function(input,proc)
+		if proc then wait() updatecmdbar() return end
+		if input.KeyCode == Enum.KeyCode.Semicolon then
+			wait()
+			visible = true
+			CMDBarGui.Enabled = true
+			CMDBarGui.Frame.TextBox:CaptureFocus()
+		end
+		for i,v in pairs(REBORN_SYSTEM.Keybinds) do
+			if v.Key == input.KeyCode then
+				v.Function()
+			end
+		end
+	end)
+else
+	mouse.KeyDown:Connect(function(key)
+		wait() updatecmdbar()
+		if key == ";" then
+			wait()
+			visible = true
+			CMDBarGui.Enabled = true
+			CMDBarGui.Frame.TextBox:CaptureFocus()
+		end
+		for i,v in pairs(REBORN_SYSTEM.Keybinds) do
+			if v.Key.Name:lower() == key then
+				v.Function()
+			end
+		end
+	end)
+end
+CMDBarGui.Frame.TextBox.FocusLost:Connect(function(w)
+	local IsACmd = false
+	CMDBarGui.Enabled = false
+	local text = CMDBarGui.Frame.TextBox.Text:lower()
+	if text ~= "" or text ~= " " or text ~= nil then
+		if text:sub(1,1) ~= REBORN_SYSTEM.Settings.PREFIX then
+			text = REBORN_SYSTEM.Settings.PREFIX..text
+			REBORN_SYSTEM:ExecuteCommand(text)
+		end
+	end
+end)
+function updatecmdbar()
+	local tble = {}
+	for i,v in pairs(REBORN_SYSTEM.Commands) do
+		local cmd = {}
+		if type(v.Name) == "table" then
+			cmd.Name = v.Name[1]
+			cmd.Description = v.Description
+		else
+			cmd.Name = v.Name
+			cmd.Description = v.Description
+		end
+		local parsed = REBORN_SYSTEM:ParseString(CMDBarGui.Frame.TextBox.Text)
+		if not parsed then return end
+		if not parsed[1] then return end
+		if parsed[1]:lower() == cmd.Name:sub(1,CMDBarGui.Frame.TextBox.Text:len()):lower() then
+			table.insert(tble,cmd)
+		end
+	end
+	if tble[1] then
+		CMDBarGui.Frame.Holder1.Visible = true
+		if tble[1].Description then
+			CMDBarGui.Frame.Holder1.Text = tble[1].Name.." - "..tble[1].Description
+		else
+			CMDBarGui.Frame.Holder1.Text = tble[1].Name
+		end
+	else
+		CMDBarGui.Frame.Holder1.Visible = false
+	end
+	if tble[2] then
+		CMDBarGui.Frame.Holder2.Visible = true
+		if tble[2].Description then
+			CMDBarGui.Frame.Holder2.Text = tble[2].Name.." - "..tble[2].Description
+		else
+			CMDBarGui.Frame.Holder2.Text = tble[2].Name
+		end
+	else
+		CMDBarGui.Frame.Holder2.Visible = false
+	end
+	if tble[3] then
+		CMDBarGui.Frame.Holder3.Visible = true
+		if tble[3].Description then
+			CMDBarGui.Frame.Holder3.Text = tble[3].Name.." - "..tble[3].Description
+		else
+			CMDBarGui.Frame.Holder3.Text = tble[3].Name
+		end
+	else
+		CMDBarGui.Frame.Holder3.Visible = false
+	end
+end
+pcall(function() -- Credits to Cyrus for this bypass, it may eventually be changed
+	local gamelememe = getrawmetatable(game)
+	local Closure,Caller = hide_me or newcclosure,checkcaller or is_protosmasher_caller or Cer.isCerus
+	local writeable = setreadonly(gamelememe,false) or make_writeable(gamelememe)
+	local name,index,nindex = gamelememe.__namecall,gamelememe.__index,gamelememe.__newindex
+	gamelememe.__newindex = Closure(function(self,Property,b)
+		if REBORN_SYSTEM.Settings.DefaultBypass then
+			if not Caller() then
+		        if self:IsA'Humanoid' then 
+		            game:GetService'StarterGui':SetCore('ResetButtonCallback',true)
+		            if Property == "WalkSpeed" then 
+		                return
+		            end
+		            if Property == "Health" or Property == "JumpPower" or Property == "HipHeight"  then 
+						return 
+					end
+				end
+				if Property == "CFrame" and self.Name == "HumanoidRootPart" or self.Name == "Torso" then
+		       		return 
+		    	end
+			end
+		end
+		return nindex(self,Property,b)
+	end)
+	gamelememe.__namecall= Closure(function(self,...)
+		if REBORN_SYSTEM.Settings.DefaultBypass then
+		    if not Caller() then
+		        local Arguments = {...}
+		       	if getnamecallmethod() == "Destroy" and tostring(self) == "BodyPosition" or getnamecallmethod() == "Destroy" and tostring(self) == "BodyVelocity" then
+		            return invalidfunctiongang(self,...)
+		        end
+		        if getnamecallmethod() == "BreakJoints" and tostring(self) == game:GetService'Players'.LocalPlayer.Character.Name then
+		            return invalidfunctiongang(self,...)
+		        end
+		        if getnamecallmethod() == "FireServer" then 
+		            if self.Name == "lIII" or tostring(self.Parent) == "ReplicatedStorage" then 
+		                return wait(9e9)
+		            end
+		            if Arguments[1] == "hey" then 
+		                return wait(9e9)
+		            end
+		        end
+			end
+		end
+		return name(self,...)
+	end)
+end)
+REBORN_SYSTEM:AddCommand({"Commands","cmds","cmd"},"Toggles Commands List",function(args)
+	InformationGUI.Enabled = not InformationGUI.Enabled
+end)
+--[[
+Example: "/kill noobmaster quickly"
+args = {noobmaster,quickly}
+print(args[1])
+prints(args[2])
+
+Heres an example of how to make commands and keybinds
+
+REBORN_SYSTEM:AddCommand("print","This is primarily used for testing",function(args)
+    local msg = table.concat(args," ")
+	print(msg)
+end)
+REBORN_SYSTEM:AddCommand({"reset","r"},function(args) -- multiple commands and no description needed
+    LPlayer.Character:BreakJoints()
+end)
+REBORN_SYSTEM:AddKeybind(Enum.KeyCode.Unknown,"Test",function()
+	print("what key even is this")
+end)
+]]
+
+return REBORN_SYSTEM
