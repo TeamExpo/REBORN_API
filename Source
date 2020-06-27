@@ -430,9 +430,11 @@ function REBORN_SYSTEM:Teleport(CFRAME,seconds)
 				CFRAME = root.CFrame
 			end
 		end
-		local val = CFRAME.CFrame or CFRAME.Position
-		if val then
-			CFRAME = val
+		if CFRAME:IsA("BasePart") then
+			local val = CFRAME.CFrame or CFRAME.Position
+			if val then
+				CFRAME = val
+			end
 		end
 	end
 	if typeof(CFRAME) == "Vector3" then
