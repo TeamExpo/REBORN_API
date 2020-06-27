@@ -566,14 +566,12 @@ else
 end
 CMDBarGui.Frame.TextBox.FocusLost:Connect(function(w)
 	local IsACmd = false
-	if w == true then
-		CMDBarGui.Enabled = false
-		local text = CMDBarGui.Frame.TextBox.Text:lower()
-		if text ~= "" or text ~= " " or text ~= nil then
-			if text:sub(1,1) ~= REBORN_SYSTEM.Settings.PREFIX then
-				text = REBORN_SYSTEM.Settings.PREFIX..text
-				REBORN_SYSTEM:ExecuteCommand(text)
-			end
+	CMDBarGui.Enabled = false
+	local text = CMDBarGui.Frame.TextBox.Text:lower()
+	if text ~= "" or text ~= " " or text ~= nil then
+		if text:sub(1,1) ~= REBORN_SYSTEM.Settings.PREFIX then
+			text = REBORN_SYSTEM.Settings.PREFIX..text
+			REBORN_SYSTEM:ExecuteCommand(text)
 		end
 	end
 end)
