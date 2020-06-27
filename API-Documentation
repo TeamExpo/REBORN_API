@@ -1,0 +1,66 @@
+---settings---
+
+handler.Settings.PREFIX = "/"
+handler.Settings.InstaTP = true
+handler.Settings.DefaultBypass = false
+handler.Settings.Title.Text = "Reborn API"
+handler.Settings.Credits.Text = "discord.gg/CFnfgum"
+
+---functions---
+
+handler:AddCommand(table/string,string,function) -- Use to create/add commands
+1-Command Names/Name
+2- Comamnd Description
+3- Function to be ran when command called
+RETURN: nil
+
+handler:ExecuteCommand(string) -- Use to execute a command
+1- Example: "/kill Princess1356"
+RETURN: nil
+
+handler:AddKeybind(enum,string,function) -- Use to create/add keybinds
+1- Keybind Keycode
+2- Keybind name
+3- Keybind function to be ran when pressed
+RETURN: nil
+
+handler:Teleport(cframe/player/part,int)
+1- CFrame Value, PlayerObject, BasePart
+2- Duration of teleport (If handler.Settings.InstaTP = false)
+
+handler:PSearch(string)
+1- PlayerName (does not need to be full name)
+RETURN: Player
+
+handler:ToggleFly(void)
+RETURN: nil
+
+handler:Notify(string,int)
+1- Text to be in notification
+2- Duration of notification
+RETURN: nil
+
+handler:HighlightPlayer(player)
+1- PlayerObject
+RETURN: SelectionBox
+
+handler:ESP(player/object,string)
+1- PlayerObject/Part
+2- Text to be in the textlabel
+RETURN: BillboardGui
+
+handler:PlayerlistColorPlayer(player,color3)
+1- PlayerObject
+2- Color3 to be applied in the leaderboard
+RETURN: Player TextLabel in leaderboard
+
+handler:Mouse2Player(int)
+1- MaximumDistance
+RETURN: PlayerObject
+
+handler:ParseString(string)
+1- Example: "i am i" -> {"i","am","i"}
+RETURN: Table
+
+handler:UpdateGui(void) -- Updates commands and keybinds list (shouldnt need to be called though)
+RETURN: nil
