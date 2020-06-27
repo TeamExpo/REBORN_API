@@ -505,7 +505,7 @@ function REBORN_SYSTEM:ExecuteCommand(args)
 					end
 				end
 			end
-		else
+		elseif v.Name and args[1] then
 			if v.Name:lower() == args[1]:lower() then
 				table.remove(args,1)
 				local x,y = pcall(function()
