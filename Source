@@ -6,6 +6,8 @@ local REBORN_SYSTEM = {Settings={},Commands={},Keybinds={}}
 REBORN_SYSTEM.Settings.PREFIX = "/"
 REBORN_SYSTEM.Settings.InstaTP = true
 REBORN_SYSTEM.Settings.DefaultBypass = false
+REBORN_SYSTEM.Flying = false
+REBORN_SYSTEM.FlySpeed = 5
 REBORN_SYSTEM.Storage = game:GetObjects("rbxassetid://5240039982")[1]
 
 if _G.REBORNSYS then
@@ -158,6 +160,7 @@ function REBORN_SYSTEM:HighlightPlayer(player)
 	if player.Character then
 		local box = selectionbox:Clone()
 		box.Adornee = player.Character
+		box.Parent = workspace
 		return box	
 	end
 end
@@ -168,11 +171,11 @@ function REBORN_SYSTEM:ESP(object,text)
 	end
 	if object:IsA("Player") then
 		if object.Character and object.Character:FindFirstChild("Head") then
-			GUI.Parent = nil
+			GUI.Parent = workspace
 			GUI.Adornee = object.Character.Head
 		end
 	else
-		GUI.Parent = nil
+		GUI.Parent = workspace
 		GUI.Adornee = object
 	end
 	return GUI
@@ -209,11 +212,9 @@ function REBORN_SYSTEM:Mouse2Player(MaxDistance)
     end
 	return plr
 end
-local flying = false
-local fspeed = 5
 function REBORN_SYSTEM:ToggleFly() -- IY Fly edited by Aidez
-	flying = not flying
-	if flying then
+	REBORN_SYSTEM.Flying = not REBORN_SYSTEM.Flying
+	if REBORN_SYSTEM.Flying then
 		if LPlayer.Character ~= nil then
 			if LPlayer.Character:FindFirstChild("HumanoidRootPart") and LPlayer.Character:FindFirstChild("Humanoid") then
 				local Float = Instance.new('Part', LPlayer.Character)
@@ -287,13 +288,13 @@ function REBORN_SYSTEM:ToggleFly() -- IY Fly edited by Aidez
 				end
 				ms.KeyDown:Connect(function(KEY)
 					if KEY:lower() == 'w' then
-						CONTROL.F = fspeed
+						CONTROL.F = REBORN_SYSTEM.FlySpeed
 					elseif KEY:lower() == 's' then
-						CONTROL.B = -fspeed
+						CONTROL.B = -REBORN_SYSTEM.FlySpeed
 					elseif KEY:lower() == 'a' then
-						CONTROL.L = -fspeed 
+						CONTROL.L = -REBORN_SYSTEM.FlySpeed 
 					elseif KEY:lower() == 'd' then 
-						CONTROL.R = fspeed
+						CONTROL.R = REBORN_SYSTEM.FlySpeed
 					end
 				end)
 				ms.KeyUp:Connect(function(KEY)
@@ -381,13 +382,13 @@ function REBORN_SYSTEM:ToggleFly() -- IY Fly edited by Aidez
 				end
 				ms.KeyDown:Connect(function(KEY)
 					if KEY:lower() == 'w' then
-						CONTROL.F = fspeed
+						CONTROL.F = REBORN_SYSTEM.FlySpeed
 					elseif KEY:lower() == 's' then
-						CONTROL.B = -fspeed
+						CONTROL.B = -REBORN_SYSTEM.FlySpeed
 					elseif KEY:lower() == 'a' then
-						CONTROL.L = -fspeed 
+						CONTROL.L = -REBORN_SYSTEM.FlySpeed 
 					elseif KEY:lower() == 'd' then 
-						CONTROL.R = fspeed
+						CONTROL.R = REBORN_SYSTEM.FlySpeed
 					end
 				end)
 				ms.KeyUp:Connect(function(KEY)
@@ -422,7 +423,7 @@ function REBORN_SYSTEM:ToggleFly() -- IY Fly edited by Aidez
 end
 local tweenservice = game:GetService("TweenService")
 function REBORN_SYSTEM:Teleport(CFRAME,seconds)
-	if flying then flying = false end
+	if REBORN_SYSTEM.Flying then REBORN_SYSTEM.Flying = false end
 	if typeof(CFRAME) == "Instance" then
 		if CFRAME:IsA("Player") then
 			local root = CFRAME.Character:FindFirstChild("HumanoidRootPart") or CFRAME.Character:FindFirstChild("Torso")
