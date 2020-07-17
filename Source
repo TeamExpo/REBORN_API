@@ -652,7 +652,8 @@ pcall(function() -- Credits to Cyrus for this bypass, it may eventually be chang
 		        end
 		        if getnamecallmethod() == "BreakJoints" and tostring(self) == game:GetService'Players'.LocalPlayer.Character.Name then
 		            return invalidfunctiongang(self,...)
-		        end
+				end
+				-- below is the streets stuff really
 		        if getnamecallmethod() == "FireServer" then 
 		            if self.Name == "lIII" or tostring(self.Parent) == "ReplicatedStorage" then 
 		                return wait(9e9)
@@ -668,6 +669,27 @@ pcall(function() -- Credits to Cyrus for this bypass, it may eventually be chang
 end)
 REBORN_SYSTEM:AddCommand({"Commands","cmds","cmd"},"Toggles Commands List",function(args)
 	InformationGUI.Enabled = not InformationGUI.Enabled
+end)
+REBORN_SYSTEM:AddCommand("setkeybind","(KeybindName),(Letter)",function(args)
+	if args[1] and args[2] then else return end
+	local keybind
+	for i,v in pairs(REBORN_SYSTEM.Keybinds) do
+		if v.Name:lower() == args[1]:lower() then
+			keybind = v
+		end
+	end
+	local key
+	for i,v in pairs(Enum.KeyCode:GetEnumItems()) do
+		if v.Name:lower() == args[2]:lower() then
+			key = v
+		end
+	end
+	if keybind and key then
+		keybind.Key = key
+		REBORN_SYSTEM:UpdateGui()
+	else
+		REBORN_SYSTEM:Notify("Failed to set Keybind")
+	end
 end)
 --[[
 Example: "/kill noobmaster quickly"
