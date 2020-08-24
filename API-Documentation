@@ -2,6 +2,7 @@
 
 handler.Settings.PREFIX = "/"
 handler.Settings.InstaTP = true
+handler.Settings.StudsPerSecond = 250
 handler.Settings.DefaultBypass = false
 handler.Settings.Title.Text = "Reborn API"
 handler.Settings.Credits.Text = "discord.gg/CFnfgum"
