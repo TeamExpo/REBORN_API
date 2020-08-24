@@ -5,6 +5,7 @@ made by loyaity22
 local REBORN_SYSTEM = {Settings={},Commands={},Keybinds={}}
 REBORN_SYSTEM.Settings.PREFIX = "/"
 REBORN_SYSTEM.Settings.InstaTP = true
+REBORN_SYSTEM.Settings.StudsPerSecond = 250
 REBORN_SYSTEM.Settings.DefaultBypass = false
 REBORN_SYSTEM.Flying = false
 REBORN_SYSTEM.FlySpeed = 5
@@ -441,7 +442,7 @@ function REBORN_SYSTEM:Teleport(CFRAME,seconds)
 			root.CFrame = CFRAME
 		end
 	else
-		if not seconds then seconds = 5 end
+		if not seconds then seconds = (LPlayer.Character.HumanoidRootPart.Position-CFRAME.Position).Magnitude/REBORN_SYSTEM.Settings.StudsPerSecond end -- Default is 250 studs
 		local tweeninfo = TweenInfo.new(seconds,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0,false,0)
 		local tween = tweenservice:Create(root,tweeninfo,{CFrame = CFRAME})
 		tween:Play()
