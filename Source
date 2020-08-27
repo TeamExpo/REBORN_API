@@ -166,7 +166,7 @@ function REBORN_SYSTEM:HighlightPlayer(player)
 	end
 end
 function REBORN_SYSTEM:ESP(object,text)
-	local GUI = REBORN_SYSTEM.Storage:Clone()
+	local GUI = REBORN_SYSTEM.Storage.ESP:Clone()
 	if text and type(text) == "string" then
 		GUI.TextLabel.Text = text
 	end
