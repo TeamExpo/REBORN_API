@@ -166,19 +166,24 @@ function REBORN_SYSTEM:HighlightPlayer(player)
 	end
 end
 function REBORN_SYSTEM:ESP(object,text)
-	local GUI = REBORN_SYSTEM.Storage.ESP:Clone()
+	local GUI = REBORN_SYSTEM.Storage:Clone()
 	if text and type(text) == "string" then
 		GUI.TextLabel.Text = text
 	end
 	if object:IsA("Player") then
 		if object.Character and object.Character:FindFirstChild("Head") then
-			GUI.Parent = workspace
+			GUI.Parent = object.Character
 			GUI.Adornee = object.Character.Head
 		end
 	else
-		GUI.Parent = workspace
+		GUI.Parent = object
 		GUI.Adornee = object
 	end
+	object.AncestoryChanged:Connect(function()
+		if object.Parent == nil then
+			object:Destroy()
+		end
+	end)
 	return GUI
 end
 function REBORN_SYSTEM:PlayerlistColorPlayer(player,color3)
